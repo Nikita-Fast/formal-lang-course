@@ -1,8 +1,7 @@
 import networkx as nx
 import numpy as np
 import pytest
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State, Symbol
-
+from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
 from tests.utils import read_data_from_json, dot_to_graph
 from project.automata_tools import create_nfa_from_graph
 from project.boolean_matrices import BooleanMatrices

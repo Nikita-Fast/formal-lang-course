@@ -6,9 +6,12 @@ from pyformlang.regular_expression import Regex
 from project.automata_tools import graph_to_nfa, regex_to_minimal_dfa
 from project.boolean_matrices import BooleanMatrices
 
+from project.automata_tools import create_nfa_from_graph
+
 
 def rpq(graph: MultiDiGraph, query: Regex, start_nodes: set, final_nodes: set):
-    graph_bm = BooleanMatrices(graph_to_nfa(graph))
+    nfa = create_nfa_from_graph(graph, start_nodes, final_nodes)
+    graph_bm = BooleanMatrices(nfa)
     query_bm = BooleanMatrices(regex_to_minimal_dfa(query))
     intersection_bm = graph_bm.intersect(query_bm)
     return get_reachable(intersection_bm, query_bm)
