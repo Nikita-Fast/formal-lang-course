@@ -4,21 +4,6 @@ from scipy.sparse import dok_matrix
 
 
 class BooleanMatrices:
-    """
-    Attributes
-    ----------
-    num_states: int
-        Number of states in automaton
-    start_states: Set[State]
-        Set of start states of automaton
-    final_states: Set[State]
-        Set of final states of automaton
-    bool_matrices: Dict[Symbol, dok_matrix]
-        Mapping of labels to boolean matrices
-    state_indexes: Dict[State, int]
-        Mapping of states to their indices
-    """
-
     def __init__(self, nfa: NondeterministicFiniteAutomaton = None):
         if nfa is None:
             self.num_states = 0
@@ -30,14 +15,13 @@ class BooleanMatrices:
             self.num_states = len(nfa.states)
             self.start_states = nfa.start_states
             self.final_states = nfa.final_states
-            # проверить что выдает nfa.states()
             self.state_indexes = {
                 state: index for index, state in enumerate(nfa.states)
             }
             self.bool_matrices = self._create_boolean_matrices(nfa)
 
     def _create_boolean_matrices(self, nfa: NondeterministicFiniteAutomaton):
-        b_matrices = dict()
+        b_matrices = {}
         for state_from, transition in nfa.to_dict().items():
             for label, states_to in transition.items():
                 if not isinstance(states_to, set):
@@ -74,15 +58,15 @@ class BooleanMatrices:
     def transitive_closure(self):
         if not self.bool_matrices.values():
             return dok_matrix((1, 1))
-        transtive_closure = sum(bm for bm in self.bool_matrices.values())
-        prev_nnz = transtive_closure.nnz
+        transitive_closure = sum(self.bool_matrices.values())
+        prev_nnz = transitive_closure.nnz
         new_nnz = 0
 
         while prev_nnz != new_nnz:
-            transtive_closure += transtive_closure @ transtive_closure
-            prev_nnz, new_nnz = new_nnz, transtive_closure.nnz
+            transitive_closure += transitive_closure @ transitive_closure
+            prev_nnz, new_nnz = new_nnz, transitive_closure.nnz
 
-        return transtive_closure
+        return transitive_closure
 
     def intersect(self, another):
         bm = BooleanMatrices()
@@ -106,3 +90,9 @@ class BooleanMatrices:
                     bm.final_states.add(s)
 
         return bm
+
+    def get_start_states(self):
+        return self.start_states.copy()
+
+    def get_final_states(self):
+        return self.final_states.copy()
