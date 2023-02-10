@@ -17,9 +17,8 @@ else:
 )
 def test_write_to_dot(line: str, expected: str):
     status = write_to_dot(line, path)
-    obtained = open(path, "r")
-
-    assert (expected == obtained.read()) and status
+    with open(path, "r") as obtained:
+        assert (expected == obtained.read()) and status
     os.remove(path)
 
 
