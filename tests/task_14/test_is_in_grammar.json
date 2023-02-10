@@ -1,0 +1,24 @@
+{
+  "test_is_in_grammar": [
+    {
+      "description": "load accept",
+      "input_string": "let Ig1 = load graph 'wine'\n",
+      "expected": true
+    },
+    {
+      "description": "load from accept",
+      "input_string": "let Ig1 = load graph from 'home/wine.dot'\n",
+      "expected": true
+    },
+    {
+      "description": "and or star accept",
+      "input_string": "let Iquery1 = Il0 && ('type' || Il1)**\n",
+      "expected": true
+    },
+    {
+      "description": "and or star fail",
+      "input_string": "let Iquery1 = let && ('type' || Il1)**\n",
+      "expected": false
+    }
+  ]
+}
