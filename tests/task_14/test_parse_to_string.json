@@ -1,0 +1,19 @@
+{
+  "test_parse_to_string": [
+    {
+      "description": "load",
+      "input_string": "let Ig1 = load graph 'wine'\n",
+      "expected": "(prog (stm let (var Ig1) = (expr (load load graph (path 'wine')))) \\n <EOF>)"
+    },
+    {
+      "description": "load from",
+      "input_string": "let Ig1 = load graph from 'home/wine.dot'\n",
+      "expected": "(prog (stm let (var Ig1) = (expr (load load graph from (path 'home/wine.dot')))) \\n <EOF>)"
+    },
+    {
+      "description": "and or star",
+      "input_string": "let Iquery1 = Il0 && ('type' || Il1)**\n",
+      "expected": "(prog (stm let (var Iquery1) = (expr (expr (var Il0)) (intersect &&) (expr (star ( (expr (expr (val 'type')) (union ||) (expr (var Il1))) )**)))) \\n <EOF>)"
+    }
+  ]
+}

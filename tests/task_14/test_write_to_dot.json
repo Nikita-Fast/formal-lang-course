@@ -1,0 +1,8 @@
+{
+  "test_write_to_dot": [
+    {
+    "line": "let Ig1 = load graph 'wine'\nlet Ig1 = load graph from 'home/wine.dot'\nlet Iquery1 = ('type' || Il1)**\n",
+    "expected": "digraph tree {\n1 [label=prog];\n1 -> 2;\n2 [label=stm];\n2 -> 3;\n3 [label=\"TERM: let\"];\n2 -> 4;\n4 [label=var];\n4 -> 5;\n5 [label=\"TERM: Ig1\"];\n2 -> 6;\n6 [label=\"TERM: =\"];\n2 -> 7;\n7 [label=expr];\n7 -> 8;\n8 [label=load];\n8 -> 9;\n9 [label=\"TERM: load graph\"];\n8 -> 10;\n10 [label=path];\n10 -> 11;\n11 [label=\"TERM: 'wine'\"];\n1 -> 12;\n12 [label=\"TERM: \\n\"];\n1 -> 13;\n13 [label=stm];\n13 -> 14;\n14 [label=\"TERM: let\"];\n13 -> 15;\n15 [label=var];\n15 -> 16;\n16 [label=\"TERM: Ig1\"];\n13 -> 17;\n17 [label=\"TERM: =\"];\n13 -> 18;\n18 [label=expr];\n18 -> 19;\n19 [label=load];\n19 -> 20;\n20 [label=\"TERM: load graph from\"];\n19 -> 21;\n21 [label=path];\n21 -> 22;\n22 [label=\"TERM: 'home/wine.dot'\"];\n1 -> 23;\n23 [label=\"TERM: \\n\"];\n1 -> 24;\n24 [label=stm];\n24 -> 25;\n25 [label=\"TERM: let\"];\n24 -> 26;\n26 [label=var];\n26 -> 27;\n27 [label=\"TERM: Iquery1\"];\n24 -> 28;\n28 [label=\"TERM: =\"];\n24 -> 29;\n29 [label=expr];\n29 -> 30;\n30 [label=star];\n30 -> 31;\n31 [label=\"TERM: (\"];\n30 -> 32;\n32 [label=expr];\n32 -> 33;\n33 [label=expr];\n33 -> 34;\n34 [label=val];\n34 -> 35;\n35 [label=\"TERM: 'type'\"];\n32 -> 36;\n36 [label=union];\n36 -> 37;\n37 [label=\"TERM: ||\"];\n32 -> 38;\n38 [label=expr];\n38 -> 39;\n39 [label=var];\n39 -> 40;\n40 [label=\"TERM: Il1\"];\n30 -> 41;\n41 [label=\"TERM: )**\"];\n1 -> 42;\n42 [label=\"TERM: \\n\"];\n1 -> 43;\n43 [label=\"TERM: <EOF>\"];\n}\n"
+  }
+  ]
+}

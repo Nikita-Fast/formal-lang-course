@@ -36,6 +36,30 @@
 - Ссылка на свой `fork` репозитория размещается в [таблице](https://docs.google.com/spreadsheets/d/1IXeAhVb_cRRQf0UwHjw2AeBqNwpcY-XcnVs3-t9HBYc/edit#gid=0) курса с результатами.
 - В свой репозиторий необходимо добавить проверяющих с `admin` правами на чтение, редактирование и проверку `pull-request`'ов.
 
+## Установка и настройка
+
+- скачать иходные файлы и перейти в корневой каталог проекта:
+	```
+	git clone https://github.com/Nikita-Fast/formal-lang-course.git
+	cd formal-lang-course
+	```
+- Установить необходимые python пакеты:
+	```
+	pip3 install -r requirements.txt
+	````
+- Установить Java и antl4:
+	```
+	sudo apt-get install default-jdk
+	sudo apt-get install antlr4
+	```
+- перейти в директорию парсера:
+	```
+	cd project/parser
+	```
+- постройить модули грамматики:
+	```
+	antlr4 -Dlanguage=Python3 grammarGQL.g4 -visitor -o dist
+
 ## Домашние практические работы
 
 ### Дедлайны
