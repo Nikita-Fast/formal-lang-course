@@ -42,7 +42,7 @@ jobs:
               antlr4 -Dlanguage=Python3 grammarGQL.g4 -visitor -o dist
           else
               cd project/parser
-              antlr -Dlanguage=Python3 grammarGQL.g4 -visitor -o dist
+              antlr4 -Dlanguage=Python3 grammarGQL.g4 -visitor -o dist
           fi
 
       - name: Test with pytest
