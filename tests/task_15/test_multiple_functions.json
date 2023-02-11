@@ -1,0 +1,36 @@
+{
+  "test_multiple_functions": [
+    {
+      "input_query": "let Ig1 = load graph 'tests/task_15/graphinterp.dot'\nprint get labels of (Ig1)\\n",
+      "expected_output": [">>>{b, a}", ">>>{a, b}"]
+    },
+    {
+      "input_query": "let Ig1 = load graph 'tests/task_15/graphinterp.dot'\nlet Ig2 = set start of (Ig1) to get starts of ( Ig1 )\nlet st = get finals of (Ig1)\nprint filter (fun (df) -> df in {'0', '3;2', '4'})(st)\n",
+      "expected_output": [">>>{'0', '4'}", ">>>{'4', '0'}"]
+    },
+    {
+      "input_query": "print 'a' && ('b' || 'a')**\n",
+      "expected_output": [">>>($.a)"]
+    },
+    {
+      "input_query": "let Ig1 = load graph 'tests/task_15/graphinterp.dot'\nprint Ig1 && 'a b b'\n",
+      "expected_output": [">>>($.((a.b).b))", ">>>($.(a.(b.b)))"]
+    },
+    {
+      "input_query": "let Ig1 = load graph 'tests/task_15/graphinterp.dot'\nlet Ig2 = set start of (Ig1) to get starts of ( Ig1 )\nlet st = get finals of (Ig1)\nlet query = ('b')** || 'a' || 'a b'\\n\nlet inter = Ig1 && query\nprint inter && 'a b'\n",
+      "expected_output": [">>>($.(a.b))"]
+    },
+    {
+      "input_query": "let Ig1 = load graph 'tests/task_15/graphinterp.dot'\nlet Ig2 = set start of (Ig1) to get starts of ( Ig1 )\nprint Ig2 && 'a b'\n",
+      "expected_output": [">>>($.(a.b))"]
+    },
+    {
+      "input_query": "let Ig1 = load graph 'tests/task_15/graphinterp.dot'\nlet ff = get reachable of (Ig1)\nprint filter (fun (df) -> df[1] in {0})(filter (fun (df) -> df[0] in {1, 2})(ff))\n",
+      "expected_output": [">>>{(1, 0), (2, 0)}", ">>>{(2, 0), (1, 0)}", ">>>set()"]
+    },
+    {
+      "input_query": "let Ig1 = load graph 'tests/task_15/graphinterp.dot'\nprint filter (fun (df) -> df in {'0'})(get finals of (Ig1))\n",
+      "expected_output": [">>>{'0'}"]
+    }
+  ]
+}

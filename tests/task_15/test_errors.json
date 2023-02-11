@@ -1,0 +1,41 @@
+{
+  "test_errors": [
+    {
+      "input_query": "print get labels of (Ig1)\n",
+      "expected_output": ["----Exception----",
+                "No value with name: Ig1",
+                "-----------------",
+                "memory call",
+                "var expr pure",
+                "expr var",
+                "expr get_labels",
+                "print statement: [printget labels of (Ig1)]",
+                "-----------------"]
+    },
+    {
+      "input_query": "let Ig1 = load graph 'sssgraphinterp.dot'\n",
+      "expected_output": [
+                "----Exception----",
+                "Can not load graph: sssgraphinterp.dot",
+                "-----------------",
+                "expr load",
+                "bind statement: [Ig1]",
+                "-----------------"
+            ]
+    },
+    {
+      "input_query": "let st = get finals of (Ig1)\nlet Ig1 = load graph 'graphinterp.dot'\n",
+      "expected_output": [
+                "----Exception----",
+                "No value with name: Ig1",
+                "-----------------",
+                "memory call",
+                "var expr pure",
+                "expr var",
+                "expr get_final",
+                "bind statement: [st]",
+                "-----------------"
+            ]
+    }
+  ]
+}
