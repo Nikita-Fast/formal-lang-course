@@ -1,0 +1,32 @@
+{
+  "test_atomic_functions": [
+    {
+      "input_query": "print 12\\n",
+      "expected_output": [">>>12"]
+    },
+    {
+      "input_query": "print filter (fun (df) -> df in {1, 2, 34,})({1, 2, 3, 4,})\n",
+      "expected_output": [">>>{'1', '2'}", ">>>{'2', '1'}"]
+    },
+    {
+      "input_query": "print ('last')**\n",
+      "expected_output": [">>>(last)*"]
+    },
+    {
+      "input_query": "print 'type' || 'last'\n",
+      "expected_output": [">>>(type|last)"]
+    },
+    {
+      "input_query": "print 'last' && 'type'\n",
+      "expected_output": [">>>Empty"]
+    },
+    {
+      "input_query": "print 'last' && 'last'\n",
+      "expected_output": [">>>($.last)"]
+    },
+    {
+      "input_query": "print map (fun (df) -> 44 * df)({1, 2,})\n",
+      "expected_output": [">>>{'88', '44'}", ">>>{'44', '88'}"]
+    }
+  ]
+}

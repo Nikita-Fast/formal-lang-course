@@ -1,0 +1,8 @@
+{
+  "test_multi_single_command": [
+    {
+      "input_query": "print get starts of (load graph 'tests/task_15/graphinterp.dot')\\n",
+      "expected_output": [">>>{0;1;2;3;4;5}", ">>>{0;1;2;3;4;5;\\n}"]
+    }
+  ]
+}
