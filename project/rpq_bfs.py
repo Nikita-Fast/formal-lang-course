@@ -1,11 +1,10 @@
-from typing import Union
-
 import networkx as nx
+from pyformlang.finite_automaton import State
 from pyformlang.regular_expression import Regex
 
 from project.automata_tools import create_nfa_from_graph, regex_to_minimal_dfa
 from project.boolean_matrices import BooleanMatrices
-from scipy.sparse import csr_matrix, csr_array, lil_array
+from scipy.sparse import csr_matrix, csr_array, lil_array, dok_matrix
 from scipy import sparse
 
 
@@ -15,25 +14,36 @@ def rpq_bfs(
     start_states: set = None,
     final_states: set = None,
     separately_for_each: bool = False,
+    type_of_matrix=dok_matrix,
 ):
+    if start_states is None:
+        start_states = {int(n) for n in graph.nodes}
+    if final_states is None:
+        final_states = {int(n) for n in graph.nodes}
+
     if len(start_states) == 0 or len(final_states) == 0:
         return set()
 
     # step-1 form bm
     graph_bm = BooleanMatrices.from_automaton(
-        create_nfa_from_graph(graph, start_states, final_states)
+        create_nfa_from_graph(graph, start_states, final_states), type_of_matrix
     )
-    constraint_bm = BooleanMatrices.from_automaton(regex_to_minimal_dfa(reg_constraint))
-    k = constraint_bm.num_states
-    n = graph_bm.num_states
+    constraint_bm = BooleanMatrices.from_automaton(
+        regex_to_minimal_dfa(reg_constraint), type_of_matrix
+    )
+    k = constraint_bm.number_of_states
+    n = graph_bm.number_of_states
 
     # step-2 apply direct sum
     d_sum = constraint_bm.direct_sum(graph_bm)
 
     # step-3 form front
-    graph_start_states_indexes = [
-        graph_bm.state_to_index[start_st] for start_st in graph_bm.start_states
-    ]
+    graph_start_states_indexes = list(graph_bm.start_state_indexes)
+
+    # graph_start_states_indexes = [
+    #     graph_bm.state_to_index[start_st] for start_st in graph_bm.start_states
+    # ]
+
     if separately_for_each:
         front = _create_front_for_each(
             graph_bm, constraint_bm, graph_start_states_indexes
@@ -62,24 +72,24 @@ def rpq_bfs(
     for i, j in zip(*visited.nonzero()):
         if j >= k:
 
-            state_constraint = constraint_bm.get_state_by_index(
-                i % k
-            )  # % для случая separated_for_each
-
+            constraint_state_index = i % k  # % для случая separated_for_each
             graph_state_index = j - k
-            state_graph = graph_bm.get_state_by_index(graph_state_index)
 
             if (
-                state_constraint in constraint_bm.final_states
-                and state_graph in graph_bm.final_states
+                constraint_state_index in constraint_bm.final_state_indexes
+                and graph_state_index in graph_bm.final_state_indexes
             ):
+                graph_state = graph_bm.index_to_state[graph_state_index]
+
                 if not separately_for_each:
-                    result.add(graph_bm.get_state_by_index(graph_state_index))
+                    result.add(graph_state)
                 else:
                     result.add(
                         (
-                            constraint_bm.get_state_by_index(i // k),
-                            graph_bm.get_state_by_index(graph_state_index),
+                            # constraint_bm.index_to_state[i // k],
+                            # graph_state,
+                            State(i // k),
+                            State(graph_state_index),
                         )
                     )
 
@@ -109,21 +119,23 @@ def _create_front(
     constraint_bm: BooleanMatrices,
     graph_start_states_indexes,
 ) -> csr_matrix:
-    right_part_of_row = sparse.dok_matrix((1, graph_bm.num_states), dtype=bool)
+    right_part_of_row = sparse.dok_matrix((1, graph_bm.number_of_states), dtype=bool)
 
     for i in graph_start_states_indexes:
         right_part_of_row[0, i] = True
     right_part_of_row = right_part_of_row.tocsr()
 
     front = sparse.csr_matrix(
-        (constraint_bm.num_states, constraint_bm.num_states + graph_bm.num_states),
+        (
+            constraint_bm.number_of_states,
+            constraint_bm.number_of_states + graph_bm.number_of_states,
+        ),
         dtype=bool,
     )
 
-    for start_st in constraint_bm.start_states:
-        i = constraint_bm.state_to_index[start_st]
+    for i in constraint_bm.start_state_indexes:
         front[i, i] = True
-        front[i, constraint_bm.num_states :] = right_part_of_row
+        front[i, constraint_bm.number_of_states :] = right_part_of_row
 
     return front
 

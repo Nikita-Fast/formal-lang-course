@@ -2,6 +2,8 @@ import networkx as nx
 import numpy as np
 import pytest
 from pyformlang.finite_automaton import NondeterministicFiniteAutomaton
+from scipy.sparse import dok_matrix
+
 from tests.utils import read_data_from_json, dot_to_graph
 from project.automata_tools import create_nfa_from_graph
 from project.boolean_matrices import BooleanMatrices
@@ -13,7 +15,7 @@ from project.boolean_matrices import BooleanMatrices
         "test_bm_init",
         lambda data: (
             BooleanMatrices.from_automaton(
-                create_nfa_from_graph(dot_to_graph(data["graph"]))
+                create_nfa_from_graph(dot_to_graph(data["graph"])), dok_matrix
             ),
             data["expected_bm"],
             set(data["start_states"]),
@@ -41,7 +43,7 @@ def test_bm_init(input_bm: BooleanMatrices, expected_bm, start_states, final_sta
         "test_transitive_closure",
         lambda data: (
             BooleanMatrices.from_automaton(
-                create_nfa_from_graph(dot_to_graph(data["graph"]))
+                create_nfa_from_graph(dot_to_graph(data["graph"])), dok_matrix
             ),
             data["matrix"],
         ),
@@ -58,7 +60,7 @@ def test_transitive_closure(input_bm: BooleanMatrices, expected_bm):
         "test_to_automaton",
         lambda data: (
             BooleanMatrices.from_automaton(
-                create_nfa_from_graph(dot_to_graph(data["expected"]))
+                create_nfa_from_graph(dot_to_graph(data["expected"])), dok_matrix
             ),
             create_nfa_from_graph(dot_to_graph(data["expected"])),
         ),
@@ -106,8 +108,8 @@ def test_intersect(
     g2: NondeterministicFiniteAutomaton,
     expected: NondeterministicFiniteAutomaton,
 ):
-    bm1 = BooleanMatrices.from_automaton(g1)
-    bm2 = BooleanMatrices.from_automaton(g2)
+    bm1 = BooleanMatrices.from_automaton(g1, dok_matrix)
+    bm2 = BooleanMatrices.from_automaton(g2, dok_matrix)
     intersection = bm1.intersect(bm2)
 
     actual = intersection.to_automaton()
@@ -126,12 +128,14 @@ def test_intersect(
             BooleanMatrices.from_automaton(
                 create_nfa_from_graph(
                     dot_to_graph(data["g1"]), set(data["starts1"]), set(data["finals1"])
-                )
+                ),
+                dok_matrix,
             ),
             BooleanMatrices.from_automaton(
                 create_nfa_from_graph(
                     dot_to_graph(data["g2"]), set(data["starts2"]), set(data["finals2"])
-                )
+                ),
+                dok_matrix,
             ),
         ),
     ),

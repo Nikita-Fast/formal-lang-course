@@ -2,6 +2,7 @@ from typing import Set, Tuple
 
 from networkx import MultiDiGraph
 from pyformlang.regular_expression import Regex
+from scipy.sparse import dok_matrix
 
 from project.automata_tools import graph_to_nfa, regex_to_minimal_dfa
 from project.boolean_matrices import BooleanMatrices
@@ -11,8 +12,8 @@ from project.automata_tools import create_nfa_from_graph
 
 def rpq(graph: MultiDiGraph, query: Regex, start_nodes: set, final_nodes: set):
     nfa = create_nfa_from_graph(graph, start_nodes, final_nodes)
-    graph_bm = BooleanMatrices.from_automaton(nfa)
-    query_bm = BooleanMatrices.from_automaton(regex_to_minimal_dfa(query))
+    graph_bm = BooleanMatrices.from_automaton(nfa, dok_matrix)
+    query_bm = BooleanMatrices.from_automaton(regex_to_minimal_dfa(query), dok_matrix)
     intersection_bm = graph_bm.intersect(query_bm)
     return get_reachable(intersection_bm, query_bm)
 
@@ -32,12 +33,12 @@ def get_reachable(
         if state_from in start_states and state_to in final_states:
             result_set.add(
                 (
-                    state_from // query_bm.num_states
+                    state_from // query_bm.number_of_states
                     if query_bm is not None
-                    else b_matrix.num_states,
-                    state_to // query_bm.num_states
+                    else b_matrix.number_of_states,
+                    state_to // query_bm.number_of_states
                     if query_bm is not None
-                    else b_matrix.num_states,
+                    else b_matrix.number_of_states,
                 )
             )
 
