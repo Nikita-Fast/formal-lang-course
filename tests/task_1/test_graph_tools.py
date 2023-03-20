@@ -11,10 +11,10 @@ def test_load_graph_with_bad_input():
         load_graph("sebas")
 
 
-# def test_load_graph_with_good_input():
-#     g = load_graph("generations")
-#     assert g.number_of_nodes() == 129
-#     assert g.number_of_edges() == 273
+def test_load_graph_with_good_input():
+    g = load_graph("generations")
+    assert g.number_of_nodes() == 129
+    assert g.number_of_edges() == 273
 
 
 def test_create_and_save_two_cycles_graph_0_0():

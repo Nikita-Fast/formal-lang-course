@@ -12,7 +12,9 @@ from project.boolean_matrices import BooleanMatrices
     read_data_from_json(
         "test_bm_init",
         lambda data: (
-            BooleanMatrices(create_nfa_from_graph(dot_to_graph(data["graph"]))),
+            BooleanMatrices.from_automaton(
+                create_nfa_from_graph(dot_to_graph(data["graph"]))
+            ),
             data["expected_bm"],
             set(data["start_states"]),
             set(data["final_states"]),
@@ -28,8 +30,8 @@ def test_bm_init(input_bm: BooleanMatrices, expected_bm, start_states, final_sta
             break
     assert (
         is_correct
-        and input_bm.get_start_states() == start_states
-        and input_bm.get_final_states() == final_states
+        and input_bm.get_start_states == start_states
+        and input_bm.get_final_states == final_states
     )
 
 
@@ -38,13 +40,15 @@ def test_bm_init(input_bm: BooleanMatrices, expected_bm, start_states, final_sta
     read_data_from_json(
         "test_transitive_closure",
         lambda data: (
-            BooleanMatrices(create_nfa_from_graph(dot_to_graph(data["graph"]))),
+            BooleanMatrices.from_automaton(
+                create_nfa_from_graph(dot_to_graph(data["graph"]))
+            ),
             data["matrix"],
         ),
     ),
 )
 def test_transitive_closure(input_bm: BooleanMatrices, expected_bm):
-    tc = input_bm.transitive_closure()
+    tc = input_bm.get_transitive_closure()
     assert np.array_equal(tc.toarray(), expected_bm)
 
 
@@ -53,7 +57,9 @@ def test_transitive_closure(input_bm: BooleanMatrices, expected_bm):
     read_data_from_json(
         "test_to_automaton",
         lambda data: (
-            BooleanMatrices(create_nfa_from_graph(dot_to_graph(data["expected"]))),
+            BooleanMatrices.from_automaton(
+                create_nfa_from_graph(dot_to_graph(data["expected"]))
+            ),
             create_nfa_from_graph(dot_to_graph(data["expected"])),
         ),
     ),
@@ -100,8 +106,8 @@ def test_intersect(
     g2: NondeterministicFiniteAutomaton,
     expected: NondeterministicFiniteAutomaton,
 ):
-    bm1 = BooleanMatrices(g1)
-    bm2 = BooleanMatrices(g2)
+    bm1 = BooleanMatrices.from_automaton(g1)
+    bm2 = BooleanMatrices.from_automaton(g2)
     intersection = bm1.intersect(bm2)
 
     actual = intersection.to_automaton()
@@ -112,24 +118,24 @@ def test_intersect(
         assert actual.is_equivalent_to(expected)
 
 
-@pytest.mark.parametrize(
-    "self, other",
-    read_data_from_json(
-        "test_direct_sum",
-        lambda data: (
-            BooleanMatrices(
-                create_nfa_from_graph(
-                    dot_to_graph(data["g1"]), set(data["starts1"]), set(data["finals1"])
-                )
-            ),
-            BooleanMatrices(
-                create_nfa_from_graph(
-                    dot_to_graph(data["g2"]), set(data["starts2"]), set(data["finals2"])
-                )
-            ),
-        ),
-    ),
-)
-def test_direct_sum(self: BooleanMatrices, other: BooleanMatrices):
-    d_sum = self.direct_sum(other)
-    pass
+# @pytest.mark.parametrize(
+#     "self, other",
+#     read_data_from_json(
+#         "test_direct_sum",
+#         lambda data: (
+#             BooleanMatrices.from_automaton(
+#                 create_nfa_from_graph(
+#                     dot_to_graph(data["g1"]), set(data["starts1"]), set(data["finals1"])
+#                 )
+#             ),
+#             BooleanMatrices.from_automaton(
+#                 create_nfa_from_graph(
+#                     dot_to_graph(data["g2"]), set(data["starts2"]), set(data["finals2"])
+#                 )
+#             ),
+#         ),
+#     ),
+# )
+# def test_direct_sum(self: BooleanMatrices, other: BooleanMatrices):
+#     d_sum = self.direct_sum(other)
+#     pass

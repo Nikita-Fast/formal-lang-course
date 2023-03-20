@@ -1,108 +1,177 @@
-from pyformlang.finite_automaton import NondeterministicFiniteAutomaton, State
 from scipy import sparse
-from scipy.sparse import dok_matrix
+from pyformlang.finite_automaton import (
+    State,
+    NondeterministicFiniteAutomaton,
+    FiniteAutomaton,
+)
+
+__all__ = ["BooleanMatrices"]
 
 
 class BooleanMatrices:
-    def __init__(self, nfa: NondeterministicFiniteAutomaton = None):
-        if nfa is None:
-            self.states = set()
-            self.num_states = 0
-            self.start_states = set()
-            self.final_states = set()
-            self.bool_matrices = dict()
-            self.state_indexes = dict()
-        else:
-            self.states = nfa.states
-            self.num_states = len(nfa.states)
-            self.start_states = nfa.start_states
-            self.final_states = nfa.final_states
-            self.state_indexes = {
-                state: index for index, state in enumerate(nfa.states)
-            }
-            self.bool_matrices = self._create_boolean_matrices(nfa)
+    """
+    Class representing boolean matrix decomposition of finite automaton
+    """
 
-    def _create_boolean_matrices(self, nfa: NondeterministicFiniteAutomaton):
-        b_matrices = {}
-        for state_from, transition in nfa.to_dict().items():
-            for label, states_to in transition.items():
+    def __init__(self):
+        self.num_states = 0
+        self.start_states = set()
+        self.final_states = set()
+        self.bool_matrices = {}
+        self.state_indices = {}
+
+    @classmethod
+    def from_automaton(cls, automaton: FiniteAutomaton):
+        """
+        Transform automaton to set of labeled boolean matrix
+        Parameters
+        ----------
+        automaton
+            Automaton for transforming
+        Returns
+        -------
+        BooleanMatrices
+            Result of transforming
+        """
+
+        automaton_matrix = cls()
+        automaton_matrix.num_states = len(automaton.states)
+        automaton_matrix.start_states = automaton.start_states
+        automaton_matrix.final_states = automaton.final_states
+        automaton_matrix.state_indices = {
+            state: idx for idx, state in enumerate(automaton.states)
+        }
+
+        for s_from, trans in automaton.to_dict().items():
+            for label, states_to in trans.items():
                 if not isinstance(states_to, set):
                     states_to = {states_to}
-                for state_to in states_to:
-                    index_from = self.state_indexes[state_from]
-                    index_to = self.state_indexes[state_to]
-
-                    if label not in b_matrices:
-                        b_matrices[label] = sparse.dok_matrix(
-                            (self.num_states, self.num_states), dtype=bool
+                for s_to in states_to:
+                    idx_from = automaton_matrix.state_indices[s_from]
+                    idx_to = automaton_matrix.state_indices[s_to]
+                    if label not in automaton_matrix.bool_matrices.keys():
+                        automaton_matrix.bool_matrices[label] = sparse.csr_matrix(
+                            (automaton_matrix.num_states, automaton_matrix.num_states),
+                            dtype=bool,
                         )
+                    automaton_matrix.bool_matrices[label][idx_from, idx_to] = True
 
-                    b_matrices[label][index_from, index_to] = True
+        return automaton_matrix
 
-        return b_matrices
+    def to_automaton(self) -> NondeterministicFiniteAutomaton:
+        """
+        Transform set of labeled boolean matrix to automaton.
+        Parameters
+        ----------
+        self
+            Set of boolean matrix with label as key
+        Returns
+        -------
+        BooleanMatrices
+            Resulting automaton
+        """
 
-    def to_automaton(self):
-        nfa = NondeterministicFiniteAutomaton()
-
-        for symbol, matrix in self.bool_matrices.items():
-            rows, columns = matrix.nonzero()
-            for row, column in zip(rows, columns):
-                nfa.add_transition(row, symbol, column)
+        automaton = NondeterministicFiniteAutomaton()
+        for label in self.bool_matrices.keys():
+            for s_from, s_to in zip(*self.bool_matrices[label].nonzero()):
+                automaton.add_transition(s_from, label, s_to)
 
         for state in self.start_states:
-            nfa.add_start_state(state)
+            automaton.add_start_state(State(state))
 
         for state in self.final_states:
-            nfa.add_final_state(state)
+            automaton.add_final_state(State(state))
 
-        return nfa
+        return automaton
 
-    def transitive_closure(self):
-        if not self.bool_matrices.values():
-            return dok_matrix((1, 1))
-        transitive_closure = sum(self.bool_matrices.values())
-        prev_nnz = transitive_closure.nnz
-        new_nnz = 0
+    @property
+    def get_states(self):
+        return self.state_indices.keys()
 
-        while prev_nnz != new_nnz:
-            transitive_closure += transitive_closure @ transitive_closure
-            prev_nnz, new_nnz = new_nnz, transitive_closure.nnz
-
-        return transitive_closure
-
-    def intersect(self, another):
-        bm = BooleanMatrices()
-        bm.num_states = self.num_states * another.num_states
-
-        for label in self.bool_matrices.keys() & another.bool_matrices.keys():
-            bm.bool_matrices[label] = sparse.kron(
-                self.bool_matrices[label], another.bool_matrices[label], format="dok"
-            )
-
-        for s1, s1_index in self.state_indexes.items():
-            for s2, s2_index in another.state_indexes.items():
-                s_index = s1_index * another.num_states + s2_index
-                s = s_index
-                bm.state_indexes[s] = s_index
-
-                if s1 in self.start_states and s2 in another.start_states:
-                    bm.start_states.add(s)
-
-                if s1 in self.final_states and s2 in another.final_states:
-                    bm.final_states.add(s)
-
-        return bm
-
+    @property
     def get_start_states(self):
         return self.start_states.copy()
 
+    @property
     def get_final_states(self):
         return self.final_states.copy()
 
-    def get_state_by_index(self, index):
-        for state, ind in self.state_indexes.items():
-            if ind == index:
-                return state
+    def get_transitive_closure(self):
+        """
+        Get transitive closure of sparse.csr_matrix
+        Parameters
+        ----------
+        self
+            Class exemplar
+        Returns
+        -------
+            Transitive closure
+        """
+        tc = sparse.csr_matrix((0, 0), dtype=bool)
+
+        if len(self.bool_matrices) != 0:
+            tc = sum(self.bool_matrices.values())
+            prev_nnz = tc.nnz
+            new_nnz = 0
+
+            while prev_nnz != new_nnz:
+                tc += tc @ tc
+                prev_nnz, new_nnz = new_nnz, tc.nnz
+
+        return tc
+
+    def intersect(self, other):
+        """
+        Get intersection of two automatons
+        Parameters
+        ----------
+        self
+            First automaton
+        other
+            Second automaton
+        Returns
+        -------
+        BooleanMatrices
+            Result of intersection
+        """
+        res = BooleanMatrices()
+        res.num_states = self.num_states * other.num_states
+        common_labels = set(self.bool_matrices.keys()).union(other.bool_matrices.keys())
+
+        for label in common_labels:
+            if label not in self.bool_matrices.keys():
+                self.bool_matrices[label] = sparse.csr_matrix(
+                    (self.num_states, self.num_states), dtype=bool
+                )
+            if label not in other.bool_matrices.keys():
+                other.bool_matrices[label] = sparse.csr_matrix(
+                    (other.num_states, other.num_states), dtype=bool
+                )
+
+        for label in common_labels:
+            res.bool_matrices[label] = sparse.kron(
+                self.bool_matrices[label], other.bool_matrices[label], format="csr"
+            )
+
+        for state_first, state_first_idx in self.state_indices.items():
+            for state_second, state_second_idx in other.state_indices.items():
+                new_state = new_state_idx = (
+                    state_first_idx * other.num_states + state_second_idx
+                )
+                res.state_indices[new_state] = new_state_idx
+
+                if (
+                    state_first in self.start_states
+                    and state_second in other.start_states
+                ):
+                    res.start_states.add(new_state)
+
+                if (
+                    state_first in self.final_states
+                    and state_second in other.final_states
+                ):
+                    res.final_states.add(new_state)
+        return res
 
     def direct_sum(self, other: "BooleanMatrices"):
         d_sum = BooleanMatrices()
@@ -118,9 +187,11 @@ class BooleanMatrices:
                 ]
             )
 
-        for state in self.states:
-            d_sum.states.add(state)
-            d_sum.state_indexes[state] = self.state_indexes[state]
+        # for state in self.states:
+        #     d_sum.states.add(state)
+        #     d_sum.state_indexes[state] = self.state_indexes[state]
+        for state, idx in self.state_indices.items():
+            d_sum.state_indices[state] = idx
 
             # если состояние является стартовым у одной из матриц, то и у матрицы прямой суммы оно тоже будет стартовым
             if state in self.start_states:
@@ -129,11 +200,15 @@ class BooleanMatrices:
             if state in self.final_states:
                 d_sum.final_states.add(state)
 
-        for state in other.states:
+        # for state in other.states:
+        for state, idx in other.state_indices.items():
             new_state = State(state.value + self.num_states)
-            d_sum.states.add(new_state)
-            d_sum.state_indexes[new_state] = (
-                other.state_indexes[state] + self.num_states
+            # d_sum.states.add(new_state)
+            # d_sum.state_indexes[new_state] = (
+            #     other.state_indexes[state] + self.num_states
+            # )
+            d_sum.state_indices[new_state] = (
+                other.state_indices[state] + self.num_states
             )
 
             if state in other.start_states:
@@ -143,3 +218,8 @@ class BooleanMatrices:
                 d_sum.final_states.add(new_state)
 
         return d_sum
+
+    def get_state_by_index(self, index):
+        for state, ind in self.state_indices.items():
+            if ind == index:
+                return state

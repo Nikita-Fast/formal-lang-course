@@ -1,5 +1,8 @@
+from typing import Tuple
+
 import cfpq_data
 import networkx
+import networkx as nx
 
 
 def load_graph(name: str):
@@ -28,3 +31,26 @@ def create_and_save_two_cycles_graph(
         nodes_in_fst_cycle, nodes_in_snd_cycle, labels=labels
     )
     networkx.drawing.nx_pydot.write_dot(g, path)
+
+
+def create_two_cycle_graph(
+    first_vertices: int, second_vertices: int, edge_labels: Tuple[str, str]
+) -> nx.MultiDiGraph:
+    """
+    Create two cycle graph with labels on the edges.
+    Parameters
+    ----------
+    first_vertices: int
+        Amount of vertices in the first cycle
+    second_vertices: int
+        Amount of vertices in the second cycle
+    edge_labels: Tuple[str, str]
+        Labels for the edges on the first and second cycle
+    Returns
+    -------
+    nx.MultiDiGraph
+        Generated graph with two cycles
+    """
+    return cfpq_data.labeled_two_cycles_graph(
+        first_vertices, second_vertices, labels=edge_labels
+    )

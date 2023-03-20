@@ -3,7 +3,7 @@ import networkx as nx
 import pytest
 from pyformlang.regular_expression import Regex
 from tests.utils import read_data_from_json, dot_to_graph
-from project.rpq import rpq
+from project.rpq_better import rpq
 
 
 @pytest.mark.parametrize(
