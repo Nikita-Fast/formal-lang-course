@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import Tuple
 
 import cfpq_data
@@ -13,7 +14,18 @@ def load_graph(name: str):
         raise e
 
 
-def get_graph_info(name: str):
+GraphInfo = namedtuple("GraphInfo", "nodes edges labels")
+
+
+def get_graph_info(graph: nx.MultiDiGraph) -> GraphInfo:
+    return GraphInfo(
+        graph.number_of_nodes(),
+        graph.number_of_edges(),
+        set(attributes["label"] for (_, _, attributes) in graph.edges.data()),
+    )
+
+
+def get_graph_info_by_name(name: str):
     g = load_graph(name)
 
     labels = []
@@ -36,21 +48,6 @@ def create_and_save_two_cycles_graph(
 def create_two_cycle_graph(
     first_vertices: int, second_vertices: int, edge_labels: Tuple[str, str]
 ) -> nx.MultiDiGraph:
-    """
-    Create two cycle graph with labels on the edges.
-    Parameters
-    ----------
-    first_vertices: int
-        Amount of vertices in the first cycle
-    second_vertices: int
-        Amount of vertices in the second cycle
-    edge_labels: Tuple[str, str]
-        Labels for the edges on the first and second cycle
-    Returns
-    -------
-    nx.MultiDiGraph
-        Generated graph with two cycles
-    """
     return cfpq_data.labeled_two_cycles_graph(
         first_vertices, second_vertices, labels=edge_labels
     )
