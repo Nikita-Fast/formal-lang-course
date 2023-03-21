@@ -24,8 +24,10 @@ def cfg_to_wcnf(cfg: str | CFG, start: str = None) -> CFG:
 
     if not isinstance(cfg, CFG):
         cfg = read_cfg(cfg, start if start is not None else "S")
+    print("after not instance")
 
     wcnf_cfg = cfg.remove_useless_symbols()
+    print("after useless")
     wcnf_cfg = wcnf_cfg.eliminate_unit_productions()
     wcnf_cfg = wcnf_cfg.remove_useless_symbols()
     wcnf_productions = wcnf_cfg._get_productions_with_only_single_terminals()
