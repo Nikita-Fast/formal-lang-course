@@ -8,9 +8,11 @@ from scipy.sparse import csr_matrix
 
 
 def cfg_to_wcnf(cfg: Union[CFG, str], starting: str = "S") -> CFG:
+    print("in cfg_to_wcnf")
     if isinstance(cfg, str):
         cfg = CFG.from_text(cfg, Variable(starting))
 
+    print("after isinstance")
     # По записям в моих конспектах единственное отличие в преобразовании CFG к WCNF в сравнении с
     # преобразованием CFG к CNF заключается в отсутствии того шага, на котором устраняются эпсилон-продукции.
 
@@ -20,12 +22,14 @@ def cfg_to_wcnf(cfg: Union[CFG, str], starting: str = "S") -> CFG:
         .eliminate_unit_productions()
         .remove_useless_symbols()
     )
+    print("after new_cfg")
 
     new_productions = new_cfg._get_productions_with_only_single_terminals()
     new_productions = new_cfg._decompose_productions(new_productions)
+    print("after new_productions")
 
     cfg_in_wcnf = CFG(start_symbol=cfg._start_symbol, productions=set(new_productions))
-
+    print("before return")
     return cfg_in_wcnf
 
 
