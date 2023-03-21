@@ -69,6 +69,7 @@ def read_cfg(grammar: str, start: str) -> CFG:
         Grammar as CFG class
     """
     print("in read_cfg")
+    print(grammar, Variable(start))
     return CFG.from_text(grammar, Variable(start))
 
 
