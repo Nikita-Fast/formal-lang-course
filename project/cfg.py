@@ -37,6 +37,8 @@ def cfg_to_wcnf(cfg: Union[CFG, str], starting: str = "S") -> CFG:
     print("in cfg_to_wcnf")
     if isinstance(cfg, str):
         cfg = CFG.from_text(cfg, Variable(starting))
+    if not isinstance(cfg, CFG):
+        print("SHIT!")
     print("after isinstance")
     wcnf_cfg = cfg.remove_useless_symbols()
     print("after useless")
