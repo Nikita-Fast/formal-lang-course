@@ -7,59 +7,121 @@ from pyformlang.cfg import Variable
 from scipy.sparse import csr_matrix
 
 
-def cfg_to_wcnf(cfg: Union[CFG, str], starting: str = "S") -> CFG:
-    # print("in cfg_to_wcnf")
-    # if isinstance(cfg, str):
-    #     cfg = CFG.from_text(cfg, Variable(starting))
-    #
-    # print("after isinstance")
-    # # По записям в моих конспектах единственное отличие в преобразовании CFG к WCNF в сравнении с
-    # # преобразованием CFG к CNF заключается в отсутствии того шага, на котором устраняются эпсилон-продукции.
-    #
-    # # Заимствуем код из pyformlang метода CFG.to_normal_form()
-    # new_cfg = (
-    #     cfg.remove_useless_symbols()
-    #     .eliminate_unit_productions()
-    #     .remove_useless_symbols()
-    # )
-    # print("after new_cfg")
-    #
-    # new_productions = new_cfg._get_productions_with_only_single_terminals()
-    # new_productions = new_cfg._decompose_productions(new_productions)
-    # print("after new_productions")
-    #
-    # cfg_in_wcnf = CFG(start_symbol=cfg._start_symbol, productions=set(new_productions))
-    # print("before return")
-    # return cfg_in_wcnf
+def cfg_to_wcnf(cfg: str | CFG, start: str = None) -> CFG:
+    """
+    Transform context-free-grammar to weak chomsky normal form
+    Parameters
+    ----------
+    cfg: str | CFG
+        Grammar
+    start: str
+        Start symbol
+    Returns
+    -------
+    grammar: CFG
+        Grammar in wcnf
+    """
 
-    # if not isinstance(cfg, CFG):
-    #     cfg = read_cfg(cfg, starting if starting is not None else "S")
-    print("in cfg_to_wcnf")
-    if isinstance(cfg, str):
-        cfg = CFG.from_text(cfg, Variable(starting))
     if not isinstance(cfg, CFG):
-        print("SHIT!")
-    print("after isinstance")
+        cfg = read_cfg(cfg, start if start is not None else "S")
+
     wcnf_cfg = cfg.remove_useless_symbols()
-    print("after useless")
     wcnf_cfg = wcnf_cfg.eliminate_unit_productions()
-    print("after unit")
     wcnf_cfg = wcnf_cfg.remove_useless_symbols()
-    print("after useless")
     wcnf_productions = wcnf_cfg._get_productions_with_only_single_terminals()
-    print("after p1")
     wcnf_productions = wcnf_cfg._decompose_productions(wcnf_productions)
-    print("after p2")
 
     return CFG(start_symbol=wcnf_cfg._start_symbol, productions=set(wcnf_productions))
 
 
-def read_cfg(path: PathLike, starting: str = "S") -> CFG:
+def read_grammar_to_str(path: str):
+    """
+    Load grammar from file to string representation
+    Parameters
+    ----------
+    path: str
+        Path to file
+    Returns
+    -------
+    grammar: str
+        String grammar representation
+    """
+
     with open(path, "r") as f:
         data = f.read()
-    return CFG.from_text(data, Variable(starting))
+    return data
 
 
+def read_cfg(grammar: str, start: str) -> CFG:
+    """
+    Build CFG from string representation of grammar
+    Parameters
+    ----------
+    grammar: str
+        String grammar
+    start:
+        Start symbol for grammar
+    Returns
+    -------
+        Grammar as CFG class
+    """
+
+    return CFG.from_text(grammar, Variable(start))
+
+
+# def cfg_to_wcnf(cfg: Union[CFG, str], starting: str = "S") -> CFG:
+#     # print("in cfg_to_wcnf")
+#     # if isinstance(cfg, str):
+#     #     cfg = CFG.from_text(cfg, Variable(starting))
+#     #
+#     # print("after isinstance")
+#     # # По записям в моих конспектах единственное отличие в преобразовании CFG к WCNF в сравнении с
+#     # # преобразованием CFG к CNF заключается в отсутствии того шага, на котором устраняются эпсилон-продукции.
+#     #
+#     # # Заимствуем код из pyformlang метода CFG.to_normal_form()
+#     # new_cfg = (
+#     #     cfg.remove_useless_symbols()
+#     #     .eliminate_unit_productions()
+#     #     .remove_useless_symbols()
+#     # )
+#     # print("after new_cfg")
+#     #
+#     # new_productions = new_cfg._get_productions_with_only_single_terminals()
+#     # new_productions = new_cfg._decompose_productions(new_productions)
+#     # print("after new_productions")
+#     #
+#     # cfg_in_wcnf = CFG(start_symbol=cfg._start_symbol, productions=set(new_productions))
+#     # print("before return")
+#     # return cfg_in_wcnf
+#
+#     # if not isinstance(cfg, CFG):
+#     #     cfg = read_cfg(cfg, starting if starting is not None else "S")
+#     print("in cfg_to_wcnf")
+#     if isinstance(cfg, str):
+#         cfg = CFG.from_text(cfg, Variable(starting))
+#     if not isinstance(cfg, CFG):
+#         print("SHIT!")
+#     print("after isinstance")
+#     wcnf_cfg = cfg.remove_useless_symbols()
+#     print("after useless")
+#     wcnf_cfg = wcnf_cfg.eliminate_unit_productions()
+#     print("after unit")
+#     wcnf_cfg = wcnf_cfg.remove_useless_symbols()
+#     print("after useless")
+#     wcnf_productions = wcnf_cfg._get_productions_with_only_single_terminals()
+#     print("after p1")
+#     wcnf_productions = wcnf_cfg._decompose_productions(wcnf_productions)
+#     print("after p2")
+#
+#     return CFG(start_symbol=wcnf_cfg._start_symbol, productions=set(wcnf_productions))
+#
+#
+# def read_cfg(path: PathLike, starting: str = "S") -> CFG:
+#     with open(path, "r") as f:
+#         data = f.read()
+#     return CFG.from_text(data, Variable(starting))
+#
+#
 def cyk(cfg: CFG, w: str) -> bool:
     # обрабатываем случай пустого слова
     if len(w) == 0:
