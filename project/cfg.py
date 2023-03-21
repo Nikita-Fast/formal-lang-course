@@ -23,6 +23,7 @@ def cfg_to_wcnf(cfg: Union[str, CFG], start: str = None) -> CFG:
     """
 
     if not isinstance(cfg, CFG):
+        print("in not instance")
         cfg = read_cfg(cfg, start if start is not None else "S")
     print("after not instance")
 
@@ -67,7 +68,7 @@ def read_cfg(grammar: str, start: str) -> CFG:
     -------
         Grammar as CFG class
     """
-
+    print("in read_cfg")
     return CFG.from_text(grammar, Variable(start))
 
 
