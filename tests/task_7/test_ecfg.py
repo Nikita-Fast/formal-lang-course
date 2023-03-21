@@ -69,6 +69,8 @@ def test_productions(cfg: c.CFG, expected: Dict[c.Variable, re.Regex]):
 
     assert len(ecfg.productions) == len(expected)
     for head in expected:
-        actual_nfa = ecfg.productions[head].to_epsilon_nfa()
-        expected_nfa = expected[head].to_epsilon_nfa()
-        assert actual_nfa.is_equivalent_to(expected_nfa)
+        actual_dfa = (
+            ecfg.productions[head].to_epsilon_nfa().to_deterministic().minimize()
+        )
+        expected_dfa = expected[head].to_epsilon_nfa().to_deterministic().minimize()
+        assert actual_dfa.is_equivalent_to(expected_dfa)

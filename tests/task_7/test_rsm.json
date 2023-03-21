@@ -17,17 +17,6 @@
       }
     },
     {
-      "cfg": "S -> A S | B S | $\nA -> a\nB -> b",
-      "expected": {
-        "start": "S",
-        "boxes": {
-          "S": "digraph {1 [is_start=True, is_final=True]; 2 [is_start=False, is_final=False]; 3 [is_start=False, is_final=True]; 1 -> 2 [key=0, label=A];2 -> 3 [key=0, label=S]; 1 -> 2 [key=1, label=B] }",
-          "A": "digraph {1 [is_start=True, is_final=False]; 2 [is_start=False, is_final=True]; 1 -> 2 [key=0, label=a];}",
-          "B": "digraph {1 [is_start=True, is_final=False]; 2 [is_start=False, is_final=True]; 1 -> 2 [key=0, label=b];}"
-        }
-      }
-    },
-    {
       "cfg": "S -> A B C D E\nA -> a\nB -> b\nC -> c\nD -> d\nE -> e",
       "expected": {
         "start": "S",

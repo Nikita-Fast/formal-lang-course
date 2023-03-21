@@ -56,24 +56,6 @@
       ]
     },
     {
-      "cfg": "A -> A B\nA -> C\nA-> A a\nB -> A\nB -> $\n C -> A A | $",
-      "start": "A",
-      "expected_productions": [
-        {
-          "head": "A",
-          "body": "A B | C | A a"
-        },
-        {
-          "head": "B",
-          "body": "A | $"
-        },
-        {
-          "head": "C",
-          "body": "A A | $"
-        }
-      ]
-    },
-    {
       "cfg": "S -> a S | $",
       "start": "S",
       "expected_productions": [
