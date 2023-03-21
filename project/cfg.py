@@ -7,7 +7,7 @@ from pyformlang.cfg import Variable
 from scipy.sparse import csr_matrix
 
 
-def cfg_to_wcnf(cfg: str | CFG, start: str = None) -> CFG:
+def cfg_to_wcnf(cfg: Union[str, CFG], start: str = None) -> CFG:
     """
     Transform context-free-grammar to weak chomsky normal form
     Parameters
