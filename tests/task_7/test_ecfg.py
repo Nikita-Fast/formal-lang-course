@@ -41,17 +41,6 @@ def test_nonterminals(cfg: c.CFG):
 
 
 @pytest.mark.parametrize(
-    "cfg",
-    read_data_from_json(
-        "test_ecfg", lambda data: c.CFG.from_text(data["cfg"], data["start"])
-    ),
-)
-def test_terminals(cfg: c.CFG):
-    ecfg = ECFG.from_cfg(cfg)
-    assert ecfg.terminals == cfg.terminals
-
-
-@pytest.mark.parametrize(
     "cfg, expected",
     read_data_from_json(
         "test_ecfg",

@@ -1,42 +1,70 @@
-from pyformlang.cfg import Variable, Terminal, CFG
-from pyformlang.regular_expression import Regex
 from typing import Set, Dict
+
+from pyformlang.cfg import Variable, CFG
+from pyformlang.regular_expression import Regex
 
 
 class ECFG:
     def __init__(
         self,
         variables: Set[Variable],
-        terminals: Set[Terminal],
-        productions: Dict[Variable, Regex],
         start: Variable,
+        productions: Dict[Variable, Regex],
     ):
         self.variables = variables
-        self.terminals = terminals
-        self.productions = productions
         self.start = start
+        self.productions = productions
+
+    def to_text(self) -> str:
+        return "\n".join(
+            str(p) + " -> " + str(self.productions[p]) for p in self.productions
+        )
 
     @classmethod
     def from_cfg(cls, cfg: CFG):
-        if cfg.start_symbol is None:
-            start_symbol = Variable("S")
-        else:
-            start_symbol = cfg.start_symbol
+        variables = set(cfg.variables)
+        start_symbol = (
+            cfg.start_symbol if cfg.start_symbol is not None else Variable("S")
+        )
+        variables.add(start_symbol)
 
-        variables = set(cfg.variables).union({start_symbol})
-
-        productions: Dict[Variable, Regex] = {}
-        for production in cfg.productions:
-            if len(production.body) > 0:
-                body = Regex(" ".join(symbol.value for symbol in production.body))
+        productions: dict[Variable, Regex] = {}
+        for p in cfg.productions:
+            body = Regex(" ".join(o.value for o in p.body) if len(p.body) > 0 else "$")
+            if p.head in productions:
+                productions[p.head] = productions[p.head].union(body)
             else:
-                body = Regex("$")
-            # если у нескольких продукций одинаковая левая часть, то при порождении цепочек можем выбирать любую из
-            # доступных правых частей, поэтому сформируем из группы продукций одну, объединив их правые части,
-            # которые являются регулярными выражениями
-            if production.head in productions:
-                productions[production.head] = productions[production.head].union(body)
-            else:
-                productions[production.head] = body
+                productions[p.head] = body
 
-        return cls(variables, set(cfg.terminals), productions, start_symbol)
+        return cls(variables, start_symbol, productions)
+
+    @classmethod
+    def from_text(cls, text: str, start_symbol: str = Variable("S")) -> "ECFG":
+        variables = set()
+        productions = dict()
+        for line in text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+
+            production_objects = line.split("->")
+            if len(production_objects) != 2:
+                raise Exception("There should be only one production per line.")
+
+            head_text, body_text = production_objects
+            head = Variable(head_text.strip())
+
+            if head in variables:
+                raise Exception(
+                    "There should be only one production for each variable."
+                )
+
+            variables.add(head)
+            body = Regex(body_text.strip())
+            productions[head] = body
+
+        return cls(
+            variables=variables,
+            start=Variable(start_symbol),
+            productions=productions,
+        )

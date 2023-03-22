@@ -26,42 +26,20 @@
       ]
     },
     {
-      "cfg": "S0 -> L S1 | $\nS -> L S1\nS1 -> b\nS2 -> b\nS1 -> R S\nS1 -> S S2\nS2 -> R S\nL -> a\nR -> b",
-      "start": "S0",
-      "expected_productions": [
-        {
-          "head": "S0",
-          "body": "L S1 | $"
-        },
-        {
-          "head": "S",
-          "body": "L S1"
-        },
-        {
-          "head": "S1",
-          "body": "b | R S | S S2"
-        },
-        {
-          "head": "S2",
-          "body": "b | R S"
-        },
-        {
-          "head": "L",
-          "body": "a"
-        },
-        {
-          "head": "R",
-          "body": "b"
-        }
-      ]
-    },
-    {
-      "cfg": "S -> a S | $",
+      "cfg": "S -> i f ( C ) t h e n { ST } e l s e { ST }\nC -> t r u e | f a l s e\nST -> p a s s | S",
       "start": "S",
       "expected_productions": [
         {
           "head": "S",
-          "body": "a S | $"
+          "body": "i f ( C ) t h e n { ST } e l s e { ST }"
+        },
+        {
+          "head": "C",
+          "body": "t r u e | f a l s e"
+        },
+        {
+          "head": "ST",
+          "body": "p a s s | S"
         }
       ]
     }
